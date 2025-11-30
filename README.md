@@ -6,7 +6,7 @@ friendly string formating
 
 String prototype extension that introduces ansi escape char composition
 
-![preview](https://github.com/user-attachments/assets/25d956cd-5bb9-444d-bd15-84353246543c)
+![preview](https://github.com/user-attachments/assets/9c8fafc2-1c5c-4567-a944-2ffafc39b667)
 
 ---
 
