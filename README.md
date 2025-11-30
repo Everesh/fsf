@@ -14,9 +14,10 @@ String prototype extension that introduces ansi escape char composition
 
 import "./fsf.ts";
 
-console.log(
-  `red fg ${",this will also be red fg, but blue bg and bold on top".bold.blueBg}, back to just red fg`.red
-);
+console.log("bold red text".bold.red);
+console.log("gradient bg, italic, rainbow text"
+            .italic.rainbow.gradientBg([255,0,0],[0,255,0]));
+console.log(`blue ${"red underlined".red.underline} all on white bg`.whiteBg.blue);
 
 ```
 

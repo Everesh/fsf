@@ -61,3 +61,13 @@ console.log(
     `compositio ${"test".rainbow.bold.yellowBg} this will go ${"bad".bold.redBg.black}`
       .blue.italic,
 );
+console.log("bold red text".bold.red);
+console.log(
+  "gradient bg, italics, rainbow text".italic.rainbow.gradientBg(
+    [255, 0, 0],
+    [0, 255, 0],
+  ),
+);
+console.log(
+  `blue ${"red underlined".red.underline} all on green bg`.greenBg.blue,
+);
