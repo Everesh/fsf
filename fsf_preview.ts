@@ -71,3 +71,8 @@ console.log(
 console.log(
   `blue ${"red underlined".red.underline} all on green bg`.greenBg.blue,
 );
+console.log(
+  `the end is never the end is ${"never the end is".red.whiteBg} never the end is never`
+    .gradientBg([255, 0, 0], [0, 255, 0])
+    .gradient([0, 0, 255], [255, 0, 0]).bold.italic.underline.strikethrough,
+);

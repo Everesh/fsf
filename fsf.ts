@@ -444,8 +444,12 @@ String.prototype.gradient = function (
 ): string {
   if (!isTTY) return String(this);
 
-  const str = String(this);
-  const steps = str.length;
+  const strArr = splitAnsi(String(this));
+
+  const steps = strArr.reduce((acc: number, str: string) => {
+    if (str.match(ansiRegex)) return acc;
+    return acc + str.length;
+  }, 0);
   let output = "";
 
   const [sR, sG, sB] = start;
@@ -455,16 +459,23 @@ String.prototype.gradient = function (
   const deltaG = eG - sG;
   const deltaB = eB - sB;
 
-  for (let i = 0; i < steps; i++) {
-    const t = i / (steps - 1);
+  let charIndex = 0;
 
-    const currentR = Math.round(sR + deltaR * t);
-    const currentG = Math.round(sG + deltaG * t);
-    const currentB = Math.round(sB + deltaB * t);
+  for (const part of strArr) {
+    if (part.match(ansiRegex)) {
+      output += part;
+      continue;
+    }
 
-    const prefix = `\x1b[38;2;${currentR};${currentG};${currentB}m`;
-
-    output += prefix + str[i];
+    for (const char of part) {
+      const t = charIndex / (steps - 1);
+      const currentR = Math.round(sR + deltaR * t);
+      const currentG = Math.round(sG + deltaG * t);
+      const currentB = Math.round(sB + deltaB * t);
+      const prefix = `\x1b[38;2;${currentR};${currentG};${currentB}m`;
+      output += prefix + char;
+      charIndex++;
+    }
   }
 
   return output + ANSI.fg.reset;
@@ -488,8 +499,12 @@ String.prototype.gradientBg = function (
 ): string {
   if (!isTTY) return String(this);
 
-  const str = String(this);
-  const steps = str.length;
+  const strArr = splitAnsi(String(this));
+
+  const steps = strArr.reduce((acc: number, str: string) => {
+    if (str.match(ansiRegex)) return acc;
+    return acc + str.length;
+  }, 0);
   let output = "";
 
   const [sR, sG, sB] = start;
@@ -499,16 +514,23 @@ String.prototype.gradientBg = function (
   const deltaG = eG - sG;
   const deltaB = eB - sB;
 
-  for (let i = 0; i < steps; i++) {
-    const t = i / (steps - 1);
+  let charIndex = 0;
 
-    const currentR = Math.round(sR + deltaR * t);
-    const currentG = Math.round(sG + deltaG * t);
-    const currentB = Math.round(sB + deltaB * t);
+  for (const part of strArr) {
+    if (part.match(ansiRegex)) {
+      output += part;
+      continue;
+    }
 
-    const prefix = `\x1b[48;2;${currentR};${currentG};${currentB}m`;
-
-    output += prefix + str[i];
+    for (const char of part) {
+      const t = charIndex / (steps - 1);
+      const currentR = Math.round(sR + deltaR * t);
+      const currentG = Math.round(sG + deltaG * t);
+      const currentB = Math.round(sB + deltaB * t);
+      const prefix = `\x1b[48;2;${currentR};${currentG};${currentB}m`;
+      output += prefix + char;
+      charIndex++;
+    }
   }
 
   return output + ANSI.bg.reset;
