@@ -10,7 +10,7 @@ String prototype extension that introduces ansi escape char composition
 
 ## Usage
 
-```typescrip
+```typescript
 
 import "./fsf.ts";
 
