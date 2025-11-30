@@ -4,6 +4,8 @@
  * Version: 0.0.1
  */
 
+const TTY = !!process.stdout.isTTY;
+
 declare global {
   interface String {
     resetAll: string;
@@ -70,8 +72,12 @@ declare global {
 const ANSI = {
   resetAll: "\x1b[0m",
 
-  bold: {
-    set: "\x1b[1m",
+  lineUp: "\x1b[1A",
+  lineDel: "\x1b[2K",
+
+  weigth: {
+    bold: "\x1b[1m",
+    dim: "\x1b[2m",
     reset: "\x1b[22m",
   },
   italic: {
@@ -86,56 +92,106 @@ const ANSI = {
     set: "\x1b[9m",
     reset: "\x1b[29m",
   },
-  dim: {
-    set: "\x1b[2m",
-    reset: "\x1b[22m",
+
+  fg: {
+    reset: "\x1b[39m",
+
+    black: "\x1b[30m",
+    red: "\x1b[31m",
+    green: "\x1b[32m",
+    yellow: "\x1b[33m",
+    blue: "\x1b[34m",
+    magenta: "\x1b[35m",
+    cyan: "\x1b[36m",
+    white: "\x1b[37m",
+
+    bBlack: "\x1b[90m",
+    bRed: "\x1b[91m",
+    bGreen: "\x1b[92m",
+    bYellow: "\x1b[93m",
+    bBlue: "\x1b[94m",
+    bMagenta: "\x1b[95m",
+    bCyan: "\x1b[96m",
+    bWhite: "\x1b[97m",
   },
 
-  resetFg: "\x1b[39m",
+  bg: {
+    reset: "\x1b[49m",
 
-  black: "\x1b[30m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  magenta: "\x1b[35m",
-  cyan: "\x1b[36m",
-  white: "\x1b[37m",
+    black: "\x1b[40m",
+    red: "\x1b[41m",
+    green: "\x1b[42m",
+    yellow: "\x1b[43m",
+    blue: "\x1b[44m",
+    magenta: "\x1b[45m",
+    cyan: "\x1b[46m",
+    white: "\x1b[47m",
 
-  bBlack: "\x1b[90m",
-  bRed: "\x1b[91m",
-  bGreen: "\x1b[92m",
-  bYellow: "\x1b[93m",
-  bBlue: "\x1b[94m",
-  bMagenta: "\x1b[95m",
-  bCyan: "\x1b[96m",
-  bWhite: "\x1b[97m",
-
-  resetBg: "\x1b[49m",
-
-  blackBg: "\x1b[40m",
-  redBg: "\x1b[41m",
-  greenBg: "\x1b[42m",
-  yellowBg: "\x1b[43m",
-  blueBg: "\x1b[44m",
-  magentaBg: "\x1b[45m",
-  cyanBg: "\x1b[46m",
-  whiteBg: "\x1b[47m",
-
-  bBlackBg: "\x1b[100m",
-  bRedBg: "\x1b[101m",
-  bGreenBg: "\x1b[102m",
-  bYellowBg: "\x1b[103m",
-  bBlueBg: "\x1b[104m",
-  bMagentaBg: "\x1b[105m",
-  bCyanBg: "\x1b[106m",
-  bWhiteBg: "\x1b[107m",
+    bBlack: "\x1b[100m",
+    bRed: "\x1b[101m",
+    bGreen: "\x1b[102m",
+    bYellow: "\x1b[103m",
+    bBlue: "\x1b[104m",
+    bMagenta: "\x1b[105m",
+    bCyan: "\x1b[106m",
+    bWhite: "\x1b[107m",
+  },
 };
+
+const ansiRegex = /(\x1b\[[0-9;]*[mK])/g;
+
+function splitAnsi(str: string): string[] {
+  const parts = str.split(ansiRegex);
+  return parts.filter((part) => part.length > 0);
+}
+
+function applyAnsi(content: string, enable: string, disable: string): string {
+  let resetAllCount = 0;
+
+  content = splitAnsi(content).map((str: string) => {
+    if (str === ANSI.resetAll) {
+      if (resetAllCount++ % 2 === 0) return str + enable;
+    }
+
+    return str === disable ? str + enable : str;
+  });
+
+  return enable + content + disable;
+}
 
 Object.defineProperties(String.prototype, {
   resetAll: {
     get(): string {
-      return ANSI.resetAll + String(this);
+      return applyAnsi(String(this), ANSI.resetAll, ANSI.resetAll);
+    },
+  },
+  bold: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.weigth.bold, ANSI.weigth.reset);
+    },
+  },
+  dim: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.weigth.dim, ANSI.weigth.reset);
+    },
+  },
+  italic: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.italic.set, ANSI.italic.reset);
+    },
+  },
+  underline: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.underline.set, ANSI.underline.reset);
+    },
+  },
+  strikethrough: {
+    get(): string {
+      return applyAnsi(
+        String(this),
+        ANSI.strikethrough.set,
+        ANSI.strikethrough.reset,
+      );
     },
   },
 });
