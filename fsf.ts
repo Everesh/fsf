@@ -136,6 +136,9 @@ const ANSI = {
   },
 };
 
+const isTTY =
+  typeof Deno !== "undefined" ? Deno.stdout.isTerminal() : process.stdout.isTTY;
+
 const ansiRegex = /(\x1b\[[0-9;]*[mK])/g;
 
 function splitAnsi(str: string): string[] {
@@ -144,7 +147,7 @@ function splitAnsi(str: string): string[] {
 }
 
 function applyAnsi(content: string, enable: string, disable: string): string {
-  if (!process.stdout.isTTY) return content;
+  if (!isTTY) return content;
   let resetAllCount = 0;
 
   content = splitAnsi(content)
@@ -414,7 +417,7 @@ String.prototype.replacePreviousXLines = function (
   this: string,
   n: number,
 ): string {
-  if (!process.stdout.isTTY) return String(this);
+  if (!isTTY) return String(this);
 
   let prefix = "";
   while (0 < n--) {
@@ -429,7 +432,7 @@ String.prototype.rgb = function (
   g: number,
   b: number,
 ): string {
-  if (!process.stdout.isTTY) return String(this);
+  if (!isTTY) return String(this);
 
   return `\x1b[38;2;${r};${g};${b}m${String(this)}${ANSI.fg.reset}`;
 };
@@ -439,7 +442,7 @@ String.prototype.gradient = function (
   start: [number, number, number],
   end: [number, number, number],
 ): string {
-  if (!process.stdout.isTTY) return String(this);
+  if (!isTTY) return String(this);
 
   const str = String(this);
   const steps = str.length;
@@ -473,7 +476,7 @@ String.prototype.rgbBg = function (
   g: number,
   b: number,
 ): string {
-  if (!process.stdout.isTTY) return String(this);
+  if (!isTTY) return String(this);
 
   return `\x1b[48;2;${r};${g};${b}m${String(this)}${ANSI.bg.reset}`;
 };
@@ -483,7 +486,7 @@ String.prototype.gradientBg = function (
   start: [number, number, number],
   end: [number, number, number],
 ): string {
-  if (!process.stdout.isTTY) return String(this);
+  if (!isTTY) return String(this);
 
   const str = String(this);
   const steps = str.length;
