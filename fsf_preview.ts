@@ -55,3 +55,9 @@ console.log("gradient".gradient([255, 0, 0], [0, 255, 0]));
 
 console.log("rgbBg".rgbBg(125, 255, 0));
 console.log("gradientBg".gradientBg([255, 0, 0], [0, 255, 0]));
+
+console.log(
+  "\n\n" +
+    `compositio ${"test".rainbow.bold.yellowBg} this will go ${"bad".bold.redBg.black}`
+      .blue.italic,
+);

@@ -147,13 +147,15 @@ function applyAnsi(content: string, enable: string, disable: string): string {
   if (!process.stdout.isTTY) return content;
   let resetAllCount = 0;
 
-  content = splitAnsi(content).map((str: string) => {
-    if (str === ANSI.resetAll) {
-      if (resetAllCount++ % 2 === 0) return str + enable;
-    }
+  content = splitAnsi(content)
+    .map((str: string) => {
+      if (str === ANSI.resetAll) {
+        if (resetAllCount++ % 2 === 0) return str + enable;
+      }
 
-    return str === disable ? str + enable : str;
-  });
+      return str === disable ? str + enable : str;
+    })
+    .join("");
 
   return enable + content + disable;
 }
