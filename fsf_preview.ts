@@ -57,20 +57,18 @@ console.log("rgbBg".rgbBg(125, 255, 0));
 console.log("gradientBg".gradientBg([255, 0, 0], [0, 255, 0]));
 
 console.log(
-  "\n\n" +
+  "\n" +
     `compositio ${"test".rainbow.bold.yellowBg} this will go ${"bad".bold.redBg.black}`
       .blue.italic,
 );
 console.log("bold red text".bold.red);
-console.log(
-  "gradient bg, italics, rainbow text".italic.rainbow.gradientBg(
-    [255, 0, 0],
-    [0, 255, 0],
-  ),
-);
-console.log(
-  `blue ${"red underlined".red.underline} all on green bg`.greenBg.blue,
-);
+
+console.log(`outer ${"inner green".green} custom rgb`.rainbow);
+console.log(`outer ${"inner green".greenBg} custom rgb bg`.rainbowBg);
+
+console.log(`outer ${"inner green".rgb(0, 255, 0)} red rgb`.rgb(255, 0, 0));
+console.log(`outer ${"inner green".rgbBg(0, 255, 0)} red rgb`.rgbBg(255, 0, 0));
+
 console.log(
   `the end is never the end is ${"never the end is".red.whiteBg} never the end is never`
     .gradientBg([255, 0, 0], [0, 255, 0])

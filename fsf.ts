@@ -262,15 +262,25 @@ Object.defineProperties(String.prototype, {
   },
   rainbow: {
     get(): string {
+      const fgRegex =
+        /\x1b\[(?:3[0-7]|9[0-7]|(?:38);2;\d{1,3};\d{1,3};\d{1,3})m/;
+      let gen = true;
       const parts = splitAnsi(String(this)).map((str: string) => {
-        if (str.match(ansiRegex)) return str;
-
-        return str
-          .split("")
-          .map((char: string) => getRandomAnsiColor("fg") + char)
-          .join("");
+        if (str.match(ansiRegex)) {
+          if (str.match(fgRegex)) {
+            gen = false;
+          } else if (str === ANSI.fg.reset) {
+            gen = true;
+          }
+          return str;
+        }
+        return gen
+          ? str
+              .split("")
+              .map((char: string) => getRandomAnsiColor("fg") + char)
+              .join("")
+          : str;
       });
-
       return parts.join("") + ANSI.fg.reset;
     },
   },
@@ -358,15 +368,25 @@ Object.defineProperties(String.prototype, {
   },
   rainbowBg: {
     get(): string {
+      const bgRegex =
+        /\x1b\[(?:4[0-7]|9[0-7]|(?:48);2;\d{1,3};\d{1,3};\d{1,3})m/;
+      let gen = true;
       const parts = splitAnsi(String(this)).map((str: string) => {
-        if (str.match(ansiRegex)) return str;
-
-        return str
-          .split("")
-          .map((char: string) => getRandomAnsiColor("bg") + char)
-          .join("");
+        if (str.match(ansiRegex)) {
+          if (str.match(bgRegex)) {
+            gen = false;
+          } else if (str === ANSI.bg.reset) {
+            gen = true;
+          }
+          return str;
+        }
+        return gen
+          ? str
+              .split("")
+              .map((char: string) => getRandomAnsiColor("bg") + char)
+              .join("")
+          : str;
       });
-
       return parts.join("") + ANSI.bg.reset;
     },
   },
