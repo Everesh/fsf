@@ -412,7 +412,13 @@ String.prototype.replacePreviousXLines = function (
   this: string,
   n: number,
 ): string {
-  return String(this);
+  if (!process.stdout.isTTY) return String(this);
+
+  let prefix = "";
+  while (0 < n--) {
+    prefix += ANSI.lineUp + ANSI.lineDel;
+  }
+  return prefix + String(this);
 };
 
 String.prototype.rgb = function (
@@ -421,7 +427,9 @@ String.prototype.rgb = function (
   g: number,
   b: number,
 ): string {
-  return String(this);
+  if (!process.stdout.isTTY) return String(this);
+
+  return `\x1b[38;2;${r};${g};${b}m${String(this)}${ANSI.fg.reset}`;
 };
 
 String.prototype.gradient = function (
@@ -429,7 +437,32 @@ String.prototype.gradient = function (
   start: [number, number, number],
   end: [number, number, number],
 ): string {
-  return String(this);
+  if (!process.stdout.isTTY) return String(this);
+
+  const str = String(this);
+  const steps = str.length;
+  let output = "";
+
+  const [sR, sG, sB] = start;
+  const [eR, eG, eB] = end;
+
+  const deltaR = eR - sR;
+  const deltaG = eG - sG;
+  const deltaB = eB - sB;
+
+  for (let i = 0; i < steps; i++) {
+    const t = i / (steps - 1);
+
+    const currentR = Math.round(sR + deltaR * t);
+    const currentG = Math.round(sG + deltaG * t);
+    const currentB = Math.round(sB + deltaB * t);
+
+    const prefix = `\x1b[38;2;${currentR};${currentG};${currentB}m`;
+
+    output += prefix + str[i];
+  }
+
+  return output + ANSI.fg.reset;
 };
 
 String.prototype.rgbBg = function (
@@ -438,7 +471,9 @@ String.prototype.rgbBg = function (
   g: number,
   b: number,
 ): string {
-  return String(this);
+  if (!process.stdout.isTTY) return String(this);
+
+  return `\x1b[48;2;${r};${g};${b}m${String(this)}${ANSI.bg.reset}`;
 };
 
 String.prototype.gradientBg = function (
@@ -446,7 +481,32 @@ String.prototype.gradientBg = function (
   start: [number, number, number],
   end: [number, number, number],
 ): string {
-  return String(this);
+  if (!process.stdout.isTTY) return String(this);
+
+  const str = String(this);
+  const steps = str.length;
+  let output = "";
+
+  const [sR, sG, sB] = start;
+  const [eR, eG, eB] = end;
+
+  const deltaR = eR - sR;
+  const deltaG = eG - sG;
+  const deltaB = eB - sB;
+
+  for (let i = 0; i < steps; i++) {
+    const t = i / (steps - 1);
+
+    const currentR = Math.round(sR + deltaR * t);
+    const currentG = Math.round(sG + deltaG * t);
+    const currentB = Math.round(sB + deltaB * t);
+
+    const prefix = `\x1b[48;2;${currentR};${currentG};${currentB}m`;
+
+    output += prefix + str[i];
+  }
+
+  return output + ANSI.bg.reset;
 };
 
 export {};
