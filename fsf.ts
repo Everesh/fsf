@@ -434,7 +434,7 @@ String.prototype.rgb = function (
 ): string {
   if (!isTTY) return String(this);
 
-  return `\x1b[38;2;${r};${g};${b}m${String(this)}${ANSI.fg.reset}`;
+  return applyAnsi(String(this), `\x1b[38;2;${r};${g};${b}m`, ANSI.fg.reset);
 };
 
 String.prototype.gradient = function (
@@ -489,7 +489,7 @@ String.prototype.rgbBg = function (
 ): string {
   if (!isTTY) return String(this);
 
-  return `\x1b[48;2;${r};${g};${b}m${String(this)}${ANSI.bg.reset}`;
+  return applyAnsi(String(this), `\x1b[48;2;${r};${g};${b}m`, ANSI.bg.reset);
 };
 
 String.prototype.gradientBg = function (
