@@ -140,6 +140,8 @@ const isTTY =
   typeof Deno !== "undefined" ? Deno.stdout.isTerminal() : process.stdout.isTTY;
 
 const ansiRegex = /(\x1b\[[0-9;]*[mK])/g;
+const fgRegex = /\x1b\[(?:3[0-7]|9[0-7]|(?:38);2;\d{1,3};\d{1,3};\d{1,3})m/;
+const bgRegex = /\x1b\[(?:4[0-7]|9[0-7]|(?:48);2;\d{1,3};\d{1,3};\d{1,3})m/;
 
 function splitAnsi(str: string): string[] {
   const parts = str.split(ansiRegex);
@@ -262,8 +264,6 @@ Object.defineProperties(String.prototype, {
   },
   rainbow: {
     get(): string {
-      const fgRegex =
-        /\x1b\[(?:3[0-7]|9[0-7]|(?:38);2;\d{1,3};\d{1,3};\d{1,3})m/;
       let gen = true;
       const parts = splitAnsi(String(this)).map((str: string) => {
         if (str.match(ansiRegex)) {
@@ -368,8 +368,6 @@ Object.defineProperties(String.prototype, {
   },
   rainbowBg: {
     get(): string {
-      const bgRegex =
-        /\x1b\[(?:4[0-7]|9[0-7]|(?:48);2;\d{1,3};\d{1,3};\d{1,3})m/;
       let gen = true;
       const parts = splitAnsi(String(this)).map((str: string) => {
         if (str.match(ansiRegex)) {
@@ -466,6 +464,7 @@ String.prototype.gradient = function (
 
   const strArr = splitAnsi(String(this));
 
+  // even if nested styles, keep the whole width
   const steps = strArr.reduce((acc: number, str: string) => {
     if (str.match(ansiRegex)) return acc;
     return acc + str.length;
@@ -480,9 +479,15 @@ String.prototype.gradient = function (
   const deltaB = eB - sB;
 
   let charIndex = 0;
+  let gen = true;
 
   for (const part of strArr) {
     if (part.match(ansiRegex)) {
+      if (part.match(fgRegex)) {
+        gen = false;
+      } else if (part === ANSI.fg.reset) {
+        gen = true;
+      }
       output += part;
       continue;
     }
@@ -492,7 +497,9 @@ String.prototype.gradient = function (
       const currentR = Math.round(sR + deltaR * t);
       const currentG = Math.round(sG + deltaG * t);
       const currentB = Math.round(sB + deltaB * t);
-      const prefix = `\x1b[38;2;${currentR};${currentG};${currentB}m`;
+      const prefix = gen
+        ? `\x1b[38;2;${currentR};${currentG};${currentB}m`
+        : "";
       output += prefix + char;
       charIndex++;
     }
@@ -535,9 +542,15 @@ String.prototype.gradientBg = function (
   const deltaB = eB - sB;
 
   let charIndex = 0;
+  let gen = true;
 
   for (const part of strArr) {
     if (part.match(ansiRegex)) {
+      if (part.match(bgRegex)) {
+        gen = false;
+      } else if (part === ANSI.bg.reset) {
+        gen = true;
+      }
       output += part;
       continue;
     }
@@ -547,7 +560,9 @@ String.prototype.gradientBg = function (
       const currentR = Math.round(sR + deltaR * t);
       const currentG = Math.round(sG + deltaG * t);
       const currentB = Math.round(sB + deltaB * t);
-      const prefix = `\x1b[48;2;${currentR};${currentG};${currentB}m`;
+      const prefix = gen
+        ? `\x1b[48;2;${currentR};${currentG};${currentB}m`
+        : "";
       output += prefix + char;
       charIndex++;
     }
