@@ -4,8 +4,6 @@
  * Version: 0.0.1
  */
 
-const TTY = !!process.stdout.isTTY;
-
 declare global {
   interface String {
     resetAll: string;
@@ -146,6 +144,7 @@ function splitAnsi(str: string): string[] {
 }
 
 function applyAnsi(content: string, enable: string, disable: string): string {
+  if (!process.stdout.isTTY) return content;
   let resetAllCount = 0;
 
   content = splitAnsi(content).map((str: string) => {
@@ -159,12 +158,27 @@ function applyAnsi(content: string, enable: string, disable: string): string {
   return enable + content + disable;
 }
 
+function getRandomAnsiColor(type: "fg" | "bg"): string {
+  const colorObject = type === "fg" ? ANSI.fg : ANSI.bg;
+
+  const allCodes = Object.values(colorObject) as string[];
+
+  const resetCode = type === "fg" ? ANSI.fg.reset : ANSI.bg.reset;
+
+  const colorCodes = allCodes.filter((code) => code !== resetCode);
+
+  const randomIndex = Math.floor(Math.random() * colorCodes.length);
+
+  return colorCodes[randomIndex];
+}
+
 Object.defineProperties(String.prototype, {
   resetAll: {
     get(): string {
       return applyAnsi(String(this), ANSI.resetAll, ANSI.resetAll);
     },
   },
+
   bold: {
     get(): string {
       return applyAnsi(String(this), ANSI.weigth.bold, ANSI.weigth.reset);
@@ -192,6 +206,204 @@ Object.defineProperties(String.prototype, {
         ANSI.strikethrough.set,
         ANSI.strikethrough.reset,
       );
+    },
+  },
+
+  replacePreviousLine: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.lineUp + ANSI.lineDel, "");
+    },
+  },
+
+  black: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.black, ANSI.fg.reset);
+    },
+  },
+  red: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.red, ANSI.fg.reset);
+    },
+  },
+  green: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.green, ANSI.fg.reset);
+    },
+  },
+  yellow: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.yellow, ANSI.fg.reset);
+    },
+  },
+  blue: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.blue, ANSI.fg.reset);
+    },
+  },
+  magenta: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.magenta, ANSI.fg.reset);
+    },
+  },
+  cyan: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.cyan, ANSI.fg.reset);
+    },
+  },
+  white: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.white, ANSI.fg.reset);
+    },
+  },
+  rainbow: {
+    get(): string {
+      const parts = splitAnsi(String(this)).map((str: string) => {
+        if (str.match(ansiRegex)) return str;
+
+        return str
+          .split("")
+          .map((char: string) => getRandomAnsiColor("fg") + char)
+          .join("");
+      });
+
+      return parts.join("") + ANSI.fg.reset;
+    },
+  },
+
+  bBlack: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bBlack, ANSI.fg.reset);
+    },
+  },
+  bRed: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bRed, ANSI.fg.reset);
+    },
+  },
+  bGreen: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bGreen, ANSI.fg.reset);
+    },
+  },
+  bYellow: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bYellow, ANSI.fg.reset);
+    },
+  },
+  bBlue: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bBlue, ANSI.fg.reset);
+    },
+  },
+  bMagenta: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bMagenta, ANSI.fg.reset);
+    },
+  },
+  bCyan: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bCyan, ANSI.fg.reset);
+    },
+  },
+  bWhite: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.fg.bWhite, ANSI.fg.reset);
+    },
+  },
+
+  blackBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.black, ANSI.bg.reset);
+    },
+  },
+  redBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.red, ANSI.bg.reset);
+    },
+  },
+  greenBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.green, ANSI.bg.reset);
+    },
+  },
+  yellowBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.yellow, ANSI.bg.reset);
+    },
+  },
+  blueBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.blue, ANSI.bg.reset);
+    },
+  },
+  magentaBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.magenta, ANSI.bg.reset);
+    },
+  },
+  cyanBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.cyan, ANSI.bg.reset);
+    },
+  },
+  whiteBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.white, ANSI.bg.reset);
+    },
+  },
+  rainbowBg: {
+    get(): string {
+      const parts = splitAnsi(String(this)).map((str: string) => {
+        if (str.match(ansiRegex)) return str;
+
+        return str
+          .split("")
+          .map((char: string) => getRandomAnsiColor("bg") + char)
+          .join("");
+      });
+
+      return parts.join("") + ANSI.bg.reset;
+    },
+  },
+
+  bBlackBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bBlack, ANSI.bg.reset);
+    },
+  },
+  bRedBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bRed, ANSI.bg.reset);
+    },
+  },
+  bGreenBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bGreen, ANSI.bg.reset);
+    },
+  },
+  bYellowBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bYellow, ANSI.bg.reset);
+    },
+  },
+  bBlueBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bBlue, ANSI.bg.reset);
+    },
+  },
+  bMagentaBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bMagenta, ANSI.bg.reset);
+    },
+  },
+  bCyanBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bCyan, ANSI.bg.reset);
+    },
+  },
+  bWhiteBg: {
+    get(): string {
+      return applyAnsi(String(this), ANSI.bg.bWhite, ANSI.bg.reset);
     },
   },
 });
